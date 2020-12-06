@@ -15,6 +15,9 @@ public class Day2Application {
     private static final Logger LOGGER = LogManager.getLogger(Day2Application.class);
 
     private static final String FILE_NAME = "day2-input.txt";
+    private static final String SLED_RENTAL = "SLED_RENTAL";
+    private static final String TOBOGGAN = "TOBOGGAN";
+
 
     public static void main(String[] args) throws IOException, URISyntaxException {
 
@@ -22,7 +25,9 @@ public class Day2Application {
 
         List<String> inputLines = day2Application.getFileContents(FILE_NAME);
 
-        LOGGER.info("There are {} valid passwords", day2Application.calculateNumberOfValidPasswords(inputLines));
+        LOGGER.info("There are {} valid passwords for {}", day2Application.calculateNumberOfValidPasswords(inputLines, SLED_RENTAL), SLED_RENTAL);
+
+        LOGGER.info("There are {} valid passwords for {}", day2Application.calculateNumberOfValidPasswords(inputLines, TOBOGGAN), TOBOGGAN);
     }
 
     /**
@@ -57,7 +62,9 @@ public class Day2Application {
      * @param inputLines the passwords and rules to check
      * @return the number of passwords that are valid
      */
-    public int calculateNumberOfValidPasswords(List<String> inputLines) {
+    public int calculateNumberOfValidPasswords(List<String> inputLines, String company) {
+
+        LOGGER.debug("Calculating valid passwords using {} rules", company);
 
         int numValidPasswords = 0;
 
@@ -65,10 +72,7 @@ public class Day2Application {
 
             String[] lineParts = inputLine.split(" ");
 
-            PasswordRule passwordRule = new PasswordRule();
-
-            parseMinimumAndMaximumValues(lineParts[0], passwordRule);
-            parseCharacter(lineParts[1], passwordRule);
+            PasswordRule passwordRule = buildPasswordRule(lineParts, company);
 
             if (passwordRule.validPassword(lineParts[2])) {
                 numValidPasswords++;
@@ -79,15 +83,58 @@ public class Day2Application {
         return numValidPasswords;
     }
 
-    private void parseMinimumAndMaximumValues(String minAndMax, PasswordRule passwordRule) {
-        String[] minAndMaxParts = minAndMax.split("-");
+    /**
+     * Constructs the Password Rule from a line in the file
+     *
+     * @param lineParts the parts of the line
+     * @return the PasswordRule
+     */
+    private PasswordRule buildPasswordRule(String[] lineParts, String company) {
 
-        passwordRule.setMinimumCount(Integer.parseInt(minAndMaxParts[0]));
-        passwordRule.setMaximumCount(Integer.parseInt(minAndMaxParts[1]));
+        char ruleCharacter = parseCharacter(lineParts[1]);
+        int firstNumber = parseFirstNumberValue(lineParts[0]);
+        int secondNumber = parseSecondNumberValue(lineParts[0]);
+
+        PasswordRule passwordRule;
+
+        switch (company) {
+            case "SLED_RENTAL" -> passwordRule = new SledRentalPasswordRule(ruleCharacter, firstNumber, secondNumber);
+            case "TOBOGGAN" -> passwordRule = new TobogganPasswordRule(ruleCharacter, firstNumber, secondNumber);
+            default -> throw new IllegalArgumentException("No Password rules for " + company);
+        }
+
+        return passwordRule;
     }
 
-    private void parseCharacter(String character, PasswordRule passwordRule) {
-        passwordRule.setCharacter(character.charAt(0));
+    /**
+     * Extracts the first number value.
+     *
+     * @param numberRange the string from the password file
+     */
+    private int parseFirstNumberValue(String numberRange) {
+        String[] numberRangeParts = numberRange.split("-");
+
+        return Integer.parseInt(numberRangeParts[0]);
+    }
+
+    /**
+     * Extracts the second number value.
+     *
+     * @param numberRange the string from the password file
+     */
+    private int parseSecondNumberValue(String numberRange) {
+        String[] numberRangeParts = numberRange.split("-");
+
+        return Integer.parseInt(numberRangeParts[1]);
+    }
+
+    /**
+     * Extracts the character at the first position of the string
+     *
+     * @param character the character string from the file
+     */
+    private char parseCharacter(String character) {
+        return character.charAt(0);
     }
 
 }
