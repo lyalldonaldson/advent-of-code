@@ -4,6 +4,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import uk.co.lyalldonaldson.aoc.day1.Day1Application;
+import uk.co.lyalldonaldson.aoc.day1.NumberSumValues;
 
 import java.util.ArrayList;
 import java.util.List;
