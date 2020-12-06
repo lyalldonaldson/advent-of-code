@@ -23,9 +23,13 @@ public class Day1Application {
 
         List<String> inputLines = day1Application.getFileContents(FILE_NAME);
 
-        int answer = day1Application.calculateAnswer(SUM_TARGET, inputLines);
+        int answerForTwoValues = day1Application.calculateAnswer(SUM_TARGET, inputLines, NumberSumValues.TWO);
 
-        LOGGER.info("Answer: {}", answer);
+        LOGGER.info("Answer for two values: {}", answerForTwoValues);
+
+        int answerForThreeValues = day1Application.calculateAnswer(SUM_TARGET, inputLines, NumberSumValues.THREE);
+
+        LOGGER.info("Answer for three values: {}", answerForThreeValues);
     }
 
     /**
@@ -57,11 +61,12 @@ public class Day1Application {
     /**
      * Finds the values from the list that add up to the target and returns the product of those values.
      *
-     * @param target the number that 2 of the lines must add up to
-     * @param input  the list of numbers to check
-     * @return the product of the 2 numbers that add up to the target
+     * @param target          the number that numberSumValues of the lines must add up to
+     * @param input           the list of numbers to check
+     * @param numberSumValues the number of values from the input to add together to match the target
+     * @return the product of the numberSumValues numbers that add up to the target
      */
-    private int calculateAnswer(int target, List<String> input) {
+    public int calculateAnswer(int target, List<String> input, NumberSumValues numberSumValues) {
 
         for (int firstLoopCounter = 0; firstLoopCounter < input.size(); firstLoopCounter++) {
 
@@ -69,17 +74,32 @@ public class Day1Application {
 
             for (int secondLoopCounter = 0; secondLoopCounter < input.size(); secondLoopCounter++) {
 
-                // We're looking for the two different values from the list that add up to the target
+                // We're looking for different values from the list that add up to the target
                 if (firstLoopCounter == secondLoopCounter) {
                     continue;
                 }
 
                 int secondValue = Integer.parseInt(input.get(secondLoopCounter));
 
-                if (firstValue + secondValue == target) {
+                if (numberSumValues == NumberSumValues.TWO && firstValue + secondValue == target) {
                     LOGGER.debug("Found a match: {} + {} = {}", firstValue, secondValue, target);
 
                     return firstValue * secondValue;
+                } else if (numberSumValues == NumberSumValues.THREE) {
+                    for (int thirdLoopCounter = 0; thirdLoopCounter < input.size(); thirdLoopCounter++) {
+
+                        // We're looking for different values from the list that add up to the target
+                        if (firstLoopCounter == thirdLoopCounter || secondLoopCounter == thirdLoopCounter) {
+                            continue;
+                        }
+
+                        int thirdValue = Integer.parseInt(input.get(thirdLoopCounter));
+                        if (firstValue + secondValue + thirdValue == target) {
+                            LOGGER.debug("Found a match: {} + {} + {} = {}", firstValue, secondValue, thirdValue, target);
+
+                            return firstValue * secondValue * thirdValue;
+                        }
+                    }
                 }
             }
         }
